@@ -17,11 +17,9 @@ pub async fn count_ip(ip_counter: web::Data<IpCounter>, req: HttpRequest) -> imp
     };
 
     match services::ip::increment(&mut ip_map, &request_ip) {
-        Ok(hits) => HttpResponse::Ok().body(format!(
-            "User address: {}\nHits: {}",
-            &req.peer_addr().unwrap().ip().to_string(),
-            hits
-        )),
+        Ok(hits) => {
+            HttpResponse::Ok().body(format!("User address: {}\nHits: {}", &request_ip, hits))
+        }
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }
