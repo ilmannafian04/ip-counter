@@ -1,8 +1,9 @@
-FROM ekidd/rust-musl-builder:stable as builder
-COPY --chown=rust:rust . .
-RUN ["cargo", "build", "--release"]
+FROM rust:1.71.0-alpine3.18 as api-builder
+WORKDIR /app
+COPY . .
+RUN apk add --no-cache musl-dev
+RUN cargo build --release
 
-FROM alpine:3
-RUN apk --no-cache add ca-certificates
-COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/ip-counter /ip-counter
-CMD ["/ip-counter"]
+FROM alpine:3.18
+COPY --from=api-builder /app/target/release/ip-counter /usr/local/bin
+CMD [ "ip-counter" ]
