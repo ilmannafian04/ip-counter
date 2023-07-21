@@ -48,8 +48,8 @@ job "ip-counter" {
       }
 
       resources {
-        cpu    = 5
-        memory = 5
+        cpu    = 10
+        memory = 10
       }
     }
   }
