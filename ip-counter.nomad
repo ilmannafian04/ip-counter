@@ -21,17 +21,15 @@ job "ip-counter" {
         "traefik.http.routers.ip-counter.tls.certResolver=cloudflareResolver",
       ]
 
-    // TODO: healthcheck
-    //   check {
-    //     name = "IP Counter HTTP Check"
-    //     type = "http"
-    //     port = "healthcheck"
-    //     path = "/health/live"
+      check {
+        name = "IP Counter HTTP Check"
+        type = "http"
+        port = "http"
+        path = "/health/live"
 
-    //     interval = "30s"
-    //     timeout  = "10s"
-    //     expose   = true
-    //   }
+        interval = "30s"
+        timeout  = "10s"
+      }
     }
 
     task "ip-counter" {
