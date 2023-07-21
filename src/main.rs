@@ -1,41 +1,39 @@
-use std::{collections::HashMap, sync::Mutex};
+mod config;
+mod error;
+mod handlers;
+mod routes;
+mod services;
+mod states;
 
-use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
-
-struct IpCounter {
-    pub maps: Mutex<HashMap<String, usize>>,
-}
-
-async fn hello(state: web::Data<IpCounter>, req: HttpRequest) -> impl Responder {
-    let request_ip = req.peer_addr().unwrap().ip().to_string();
-    let mut counter = state.maps.lock().unwrap();
-    let hits: usize;
-    if counter.contains_key(&request_ip) {
-        let current_count = counter.get(&request_ip).unwrap().clone() + 1;
-        hits = current_count;
-        counter.insert(request_ip, current_count);
-    } else {
-        hits = 1;
-        counter.insert(request_ip, 1);
-    }
-    HttpResponse::Ok().body(format!(
-        "User address: {}\nHits: {}",
-        &req.peer_addr().unwrap().ip().to_string(),
-        hits
-    ))
-}
+use actix_web::{App, HttpServer};
+use dotenv::dotenv;
+use env_logger::Env;
+use log::info;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let state = web::Data::new(IpCounter {
-        maps: Mutex::new(HashMap::new()),
-    });
+    dotenv().ok();
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
+
+    info!(
+        "starting {} v{}",
+        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_VERSION")
+    );
+
+    info!("building configuartion");
+    let app_config = config::AppConfig::new();
+
+    info!("initializing states");
+    let ip_counter = states::IpCounter::new();
+
+    info!("binding server to {}:{}", app_config.host, app_config.port);
     HttpServer::new(move || {
         App::new()
-            .app_data(state.clone())
-            .route("/", web::get().to(hello))
+            .app_data(ip_counter.clone())
+            .configure(routes::configuration)
     })
-    .bind("0.0.0.0:80")?
+    .bind((app_config.host, app_config.port))?
     .run()
     .await
 }
