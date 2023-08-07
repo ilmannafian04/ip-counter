@@ -3,7 +3,7 @@ variable "version" {
 }
 
 job "ip-counter" {
-  datacenters = ["ln-sg"]
+  datacenters = ["sg-ln"]
 
   group "ip-counter" {
     network {
@@ -15,7 +15,7 @@ job "ip-counter" {
       port = "http"
       tags = [
         "traefik.enable=true",
-        "traefik.http.routers.ip-counter.rule=Host(`ipcounter.ilmannfn.com`)",
+        "traefik.http.routers.ip-counter.rule=Host(`ipcounter.ilman.io`)",
         "traefik.http.routers.ip-counter.entrypoints=websecure",
         "traefik.http.routers.ip-counter.tls=true",
         "traefik.http.routers.ip-counter.tls.certResolver=cloudflareResolver",
