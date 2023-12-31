@@ -3,6 +3,7 @@ variable "version" {
 }
 
 job "ip-counter" {
+  region      = "id"
   datacenters = ["id-dpk"]
 
   group "ip-counter" {
