@@ -28,6 +28,7 @@ job "ip-counter" {
 
         interval = "30s"
         timeout  = "10s"
+        expose   = true
       }
     }
 
@@ -46,8 +47,8 @@ job "ip-counter" {
       }
 
       resources {
-        cpu    = 10
-        memory = 10
+        cpu    = 50
+        memory = 20
       }
     }
   }
