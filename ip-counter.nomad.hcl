@@ -3,28 +3,27 @@ variable "version" {
 }
 
 job "ip-counter" {
-  datacenters = ["sg-ln"]
+  datacenters = ["id-dpk"]
 
   group "ip-counter" {
     network {
-      port "http" {}
+      mode = "bridge"
+
+      port "healthcheck" {}
     }
 
     service {
       name = "ip-counter"
-      port = "http"
-      tags = [
-        "traefik.enable=true",
-        "traefik.http.routers.ip-counter.rule=Host(`ipcounter.ilman.io`)",
-        "traefik.http.routers.ip-counter.entrypoints=websecure",
-        "traefik.http.routers.ip-counter.tls=true",
-        "traefik.http.routers.ip-counter.tls.certResolver=cloudflareResolver",
-      ]
+      port = "8080"
+
+      connect {
+        sidecar_service {}
+      }
 
       check {
         name = "IP Counter HTTP Check"
         type = "http"
-        port = "http"
+        port = "healthcheck"
         path = "/health/live"
 
         interval = "30s"
@@ -37,12 +36,11 @@ job "ip-counter" {
 
       config {
         image = "ilmannafian/ip-counter:${var.version}"
-        ports = ["http"]
       }
 
       env {
-        HOST = "0.0.0.0"
-        PORT = NOMAD_PORT_http
+        HOST = "127.0.0.1"
+        PORT = "8080"
 
         RUST_LOG = "info"
       }
