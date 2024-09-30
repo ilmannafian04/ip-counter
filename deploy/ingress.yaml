@@ -1,0 +1,23 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ip-counter
+  annotations:
+    kubernetes.io/tls-acme: "true"
+spec:
+  rules:
+    - host: ipcounter.ilman.io
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: ip-counter
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - ipcounter.ilman.io
+      secretName: ipcounter-ilman-io
